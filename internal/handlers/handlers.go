@@ -8,27 +8,23 @@ import (
 	"net/http/pprof"
 )
 
-func CreateAPIMux(build string) http.Handler {
+func CreateAPIMux(buildEnv string) http.Handler {
 	mux := http.NewServeMux()
 
-	v1Handler := v1.Handler{
-		Build: build,
-	}
+	v1Handler := v1.CreateHandler()
 
 	mux.HandleFunc("/v1/sequence", v1Handler.Sequencer)
 
 	return mux
 }
 
-func CreateDebugMux(build string) http.Handler {
+func CreateDebugMux(buildEnv string) http.Handler {
 	mux := debugStandardLibraryMux()
 
-	cgh := health.Handler{
-		Build: build,
-	}
+	healthHandler := health.CreateHandler(buildEnv)
 
-	mux.HandleFunc("/debug/readiness", cgh.Readiness)
-	mux.HandleFunc("/debug/liveness", cgh.Liveness)
+	mux.HandleFunc("/debug/readiness", healthHandler.Readiness)
+	mux.HandleFunc("/debug/liveness", healthHandler.Liveness)
 
 	return mux
 }

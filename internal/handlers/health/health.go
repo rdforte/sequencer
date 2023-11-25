@@ -7,11 +7,15 @@ import (
 	"os"
 )
 
-type Handler struct {
-	Build string
+func CreateHandler(buildEnv string) handler {
+	return handler{buildEnv}
 }
 
-func (h Handler) Readiness(w http.ResponseWriter, r *http.Request) {
+type handler struct {
+	BuildEnv string
+}
+
+func (h handler) Readiness(w http.ResponseWriter, r *http.Request) {
 	status := "ok"
 	statusCode := http.StatusOK
 
@@ -28,7 +32,7 @@ func (h Handler) Readiness(w http.ResponseWriter, r *http.Request) {
 	log.Printf("readiness: statusCode %v, method %v, path %v, remoteAddress %v", statusCode, r.Method, r.URL.Path, r.RemoteAddr)
 }
 
-func (h Handler) Liveness(w http.ResponseWriter, r *http.Request) {
+func (h handler) Liveness(w http.ResponseWriter, r *http.Request) {
 	host, err := os.Hostname()
 	if err != nil {
 		host = "unavailable"
@@ -44,7 +48,7 @@ func (h Handler) Liveness(w http.ResponseWriter, r *http.Request) {
 		Namespace string `json:"namespace,omitempty"`
 	}{
 		Status:    "up",
-		Build:     h.Build,
+		Build:     h.BuildEnv,
 		Host:      host,
 		Pod:       os.Getenv("KUBERNETES_PODNAME"),
 		PodIP:     os.Getenv("KUBERNETES_NAMESPACE_POD_IP"),

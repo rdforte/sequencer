@@ -6,11 +6,13 @@ import (
 	"net/http"
 )
 
-type Handler struct {
-	Build string
+func CreateHandler() handler {
+	return handler{}
 }
 
-func (h Handler) Sequencer(w http.ResponseWriter, r *http.Request) {
+type handler struct{}
+
+func (h handler) Sequencer(w http.ResponseWriter, r *http.Request) {
 	status := "ok"
 	statusCode := http.StatusOK
 
