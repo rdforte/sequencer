@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/rdforte/sequencer/internal/config"
 	"github.com/rdforte/sequencer/internal/handlers"
 	"log"
 	"net"
@@ -22,7 +23,12 @@ func main() {
 }
 
 func run() error {
-	log.Printf("Waiting for connection...")
+	log.Printf("Setting up server...")
+
+	cfg, err := config.CreateAPIConfig()
+	if err != nil {
+		return fmt.Errorf("unable to create application config error %w", err)
+	}
 
 	/** The Debug function returns a mux to listen and serve on for all the debug
 	related endpoints. This includes the standard library endpoints.
@@ -32,8 +38,9 @@ func run() error {
 	// start the service listening for debug requests.
 	// not concerned about shutting this down with load shedding.
 	go func() {
-		if err := http.ListenAndServe(":4000", debugMux); err != nil { // TODO set debug port
-			fmt.Printf("debug server shutdown on host %v, ERROR %v", ":4000", err)
+		log.Printf("debug service started on port %v", cfg.DebugPort())
+		if err := http.ListenAndServe(fmt.Sprintf(":%v", cfg.DebugPort()), debugMux); err != nil {
+			fmt.Printf("debug server shutdown on host %v, error %v", cfg.DebugPort(), err)
 		}
 	}()
 
@@ -44,7 +51,7 @@ func run() error {
 
 	srv := &http.Server{
 		BaseContext:  func(_ net.Listener) context.Context { return ctx },
-		Addr:         ":3000",
+		Addr:         fmt.Sprintf(":%v", cfg.ApiPort()),
 		ReadTimeout:  time.Second,
 		WriteTimeout: 10 * time.Second,
 		Handler:      apiMux,
@@ -52,7 +59,7 @@ func run() error {
 
 	srvErr := make(chan error, 1)
 	go func() {
-		log.Printf("service started on port %v", 3000)
+		log.Printf("service started on port %v", cfg.ApiPort())
 		srvErr <- srv.ListenAndServe()
 	}()
 
@@ -63,7 +70,8 @@ func run() error {
 		return fmt.Errorf("server error: %w", err)
 	case <-ctx.Done():
 		// give the server 10 seconds to shut down gracefully. Allows for load shedding.
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10) // TODO set time as ENV var
+
+		ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout())
 		defer cancel()
 
 		if err := srv.Shutdown(ctx); err != nil {
