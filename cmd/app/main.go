@@ -67,7 +67,7 @@ func run() error {
 		// Error when starting HTTP server.
 		return fmt.Errorf("server error: %w", err)
 	case <-ctx.Done():
-		// give the server 10 seconds to shut down gracefully. Allows for load shedding.
+		// give the service time to shut down gracefully. Allows for load shedding.
 
 		ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout())
 		defer cancel()
