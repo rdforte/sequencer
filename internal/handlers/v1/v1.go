@@ -2,19 +2,28 @@ package v1
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/rdforte/sequencer/internal/atomicSequence"
 	"log"
 	"net/http"
 )
 
-func CreateHandler() handler {
-	return handler{}
+func CreateHandler(sequencer atomicSequence.Sequencer) handler {
+	return handler{
+		sequencer: sequencer,
+	}
 }
 
-type handler struct{}
+type handler struct {
+	sequencer atomicSequence.Sequencer
+}
 
 func (h handler) Sequencer(w http.ResponseWriter, r *http.Request) {
 	status := "ok"
 	statusCode := http.StatusOK
+
+	seqNumber := h.sequencer.Increment()
+	fmt.Println(seqNumber)
 
 	data := struct {
 		Status   string   `json:"status"`
@@ -22,7 +31,7 @@ func (h handler) Sequencer(w http.ResponseWriter, r *http.Request) {
 	}{
 		Status: status,
 		Sequence: sequence{
-			Number: 1,
+			Number: seqNumber,
 		},
 	}
 

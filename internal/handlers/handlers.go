@@ -2,16 +2,18 @@ package handlers
 
 import (
 	"expvar"
+	"github.com/rdforte/sequencer/internal/atomicSequence"
 	"github.com/rdforte/sequencer/internal/handlers/health"
 	v1 "github.com/rdforte/sequencer/internal/handlers/v1"
 	"net/http"
 	"net/http/pprof"
 )
 
-func CreateAPIMux(buildEnv string) http.Handler {
+func CreateAPIMux() http.Handler {
 	mux := http.NewServeMux()
 
-	v1Handler := v1.CreateHandler()
+	sequencer := atomicSequence.CreateAtomicSequencer()
+	v1Handler := v1.CreateHandler(sequencer)
 
 	mux.HandleFunc("/v1/sequence", v1Handler.Sequencer)
 

@@ -47,7 +47,7 @@ func run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
 	defer stop()
 
-	apiMux := handlers.CreateAPIMux(buildEnv)
+	apiMux := handlers.CreateAPIMux()
 
 	srv := &http.Server{
 		BaseContext:  func(_ net.Listener) context.Context { return ctx },
