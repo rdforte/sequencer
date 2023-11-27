@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-var buildEnv = "dev"
-
 func main() {
 	if err := run(); err != nil {
 		fmt.Printf("server error %v", err)
@@ -33,12 +31,12 @@ func run() error {
 	/** The Debug function returns a mux to listen and serve on for all the debug
 	related endpoints. This includes the standard library endpoints.
 	*/
-	debugMux := handlers.CreateDebugMux(buildEnv)
+	debugMux := handlers.CreateDebugMux(cfg.Env())
 
 	// start the service listening for debug requests.
 	// not concerned about shutting this down with load shedding.
 	go func() {
-		log.Printf("debug service started on port %v", cfg.DebugPort())
+		log.Printf("starting %s debug service started on port %v", cfg.Env(), cfg.DebugPort())
 		if err := http.ListenAndServe(fmt.Sprintf(":%v", cfg.DebugPort()), debugMux); err != nil {
 			fmt.Printf("debug server shutdown on host %v, error %v", cfg.DebugPort(), err)
 		}
@@ -59,7 +57,7 @@ func run() error {
 
 	srvErr := make(chan error, 1)
 	go func() {
-		log.Printf("service started on port %v", cfg.ApiPort())
+		log.Printf("starting %s service started on port %v", cfg.Env(), cfg.ApiPort())
 		srvErr <- srv.ListenAndServe()
 	}()
 

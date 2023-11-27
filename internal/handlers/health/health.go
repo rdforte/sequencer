@@ -39,21 +39,13 @@ func (h handler) Liveness(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Status    string `json:"status,omitempty"`
-		Build     string `json:"build,omitempty"`
-		Host      string `json:"host,omitempty"`
-		Pod       string `json:"pod,omitempty"`
-		PodIP     string `json:"podIP,omitempty"`
-		Node      string `json:"node,omitempty"`
-		Namespace string `json:"namespace,omitempty"`
+		Status string `json:"status,omitempty"`
+		Build  string `json:"build,omitempty"`
+		Host   string `json:"host,omitempty"`
 	}{
-		Status:    "up",
-		Build:     h.BuildEnv,
-		Host:      host,
-		Pod:       os.Getenv("KUBERNETES_PODNAME"),
-		PodIP:     os.Getenv("KUBERNETES_NAMESPACE_POD_IP"),
-		Node:      os.Getenv("KUBERNETES_NODENAME"),
-		Namespace: os.Getenv("KUBERNETES_NAMESPACE"),
+		Status: "up",
+		Build:  h.BuildEnv,
+		Host:   host,
 	}
 
 	statusCode := http.StatusOK

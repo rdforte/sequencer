@@ -11,6 +11,7 @@ var (
 	apiPortKey            = "API_PORT"
 	debugPortKey          = "DEBUG_PORT"
 	shutdownTimeoutSecKey = "SHUTDOWN_TIMEOUT_SEC"
+	environmentKey        = "ENVIRONMENT"
 )
 
 func CreateAPIConfig() (*config, error) {
@@ -33,10 +34,16 @@ func CreateAPIConfig() (*config, error) {
 		return nil, fmt.Errorf("env var %s not a valid shutdown timeout %w", shutdownTimeoutSecKey, err)
 	}
 
+	env := os.Getenv(environmentKey)
+	if len(env) == 0 {
+		return nil, fmt.Errorf("no environment set for env %s", environmentKey)
+	}
+
 	return &config{
 		apiPort:            apiPort,
 		debugPort:          debugPort,
 		shutdownTimeoutSec: time.Second * time.Duration(shutdownTimeoutSec),
+		env:                env,
 	}, nil
 }
 
@@ -44,6 +51,7 @@ type config struct {
 	apiPort            int
 	debugPort          int
 	shutdownTimeoutSec time.Duration
+	env                string
 }
 
 func (c *config) ApiPort() int {
@@ -56,4 +64,8 @@ func (c *config) DebugPort() int {
 
 func (c *config) ShutdownTimeout() time.Duration {
 	return c.shutdownTimeoutSec
+}
+
+func (c *config) Env() string {
+	return c.env
 }
