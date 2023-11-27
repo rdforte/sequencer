@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"expvar"
 	"github.com/rdforte/sequencer/internal/atomicSequence"
 	"github.com/rdforte/sequencer/internal/handlers/health"
 	v1 "github.com/rdforte/sequencer/internal/handlers/v1"
@@ -40,7 +39,6 @@ func debugStandardLibraryMux() *http.ServeMux {
 	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
 	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
-	mux.Handle("/debug/vars", expvar.Handler())
 
 	return mux
 }

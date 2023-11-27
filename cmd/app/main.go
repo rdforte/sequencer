@@ -36,7 +36,7 @@ func run() error {
 	// start the service listening for debug requests.
 	// not concerned about shutting this down with load shedding.
 	go func() {
-		log.Printf("starting %s debug service started on port %v", cfg.Env(), cfg.DebugPort())
+		log.Printf("starting %s debug service on port %v", cfg.Env(), cfg.DebugPort())
 		if err := http.ListenAndServe(fmt.Sprintf(":%v", cfg.DebugPort()), debugMux); err != nil {
 			fmt.Printf("debug server shutdown on host %v, error %v", cfg.DebugPort(), err)
 		}
@@ -57,7 +57,7 @@ func run() error {
 
 	srvErr := make(chan error, 1)
 	go func() {
-		log.Printf("starting %s service started on port %v", cfg.Env(), cfg.ApiPort())
+		log.Printf("starting %s service on port %v", cfg.Env(), cfg.ApiPort())
 		srvErr <- srv.ListenAndServe()
 	}()
 
